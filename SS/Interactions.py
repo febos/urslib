@@ -91,7 +91,7 @@ def Monopair(atompairs,mon,ID):
             'APIDS'     :                 mon,
             'ATOMPAIRS' :            len(mon)}
     
-def Process(model):
+def Process(model,allin=False):
 
     needed_atoms = [] # [RNA/Protein, donor/acceptor, ch, res_index, atom_index]
 
@@ -105,7 +105,7 @@ def Process(model):
             for i in range(len(model.chains[ch]['RES'])):
 
                 if model.chains[ch]['RES'][i]['TYPE'] == model.chains[ch]['TYPE'] and\
-                   model.chains[ch]['RES'][i]['NAME'] in Maps.donors_acceptors:
+                   (model.chains[ch]['RES'][i]['NAME'] in Maps.donors_acceptors or allin):
 
                     model.chains[ch]['RES'][i]['ATOMNAMEDICT'] = {}
 
@@ -118,7 +118,7 @@ def Process(model):
 
                         model.chains[ch]['RES'][i]['ATOMNAMEDICT'][atom['NAME']] = j
 
-                        if atom['NAME'] in Maps.neighbors[res]:
+                        if allin or atom['NAME'] in Maps.neighbors[res]:
 
                             if atom['X'] > xmax: xmax = atom['X']
                             if atom['X'] < xmin: xmin = atom['X']
@@ -131,7 +131,7 @@ def Process(model):
 
     return needed_atoms, [xmin, xmax, ymin, ymax, zmin, zmax]
 
-def Cubics(model,needed_atoms,minmax):
+def Cubics(model,needed_atoms,minmax,side=2.5):
 
     cubics = [{},{}] # [rna, protein]
 
@@ -141,7 +141,7 @@ def Cubics(model,needed_atoms,minmax):
     width  = ymax - ymin
     height = zmax - zmin
 
-    side = 2.5
+    #side = 2.5
 
     n, m, k = int(length//side), int(width//side), int(height//side)
 
@@ -194,10 +194,13 @@ def Power(model,ch1,resind1,atind1,ch2,resind2,atind2,dist):
     atom1 = model.chains[ch1]['RES'][resind1]['ATOMS'][atind1]
     atom2 = model.chains[ch2]['RES'][resind2]['ATOMS'][atind2]
 
-    Dopt = {'OO':2.7,'ON':2.9,'NO':2.9,'NN':3.0}[atom1['NAME'][0]+atom2['NAME'][0]] # optimal distances
+    try:
+        Dopt = {'OO':2.7,'ON':2.9,'NO':2.9,'NN':3.0}[atom1['NAME'][0]+atom2['NAME'][0]] # optimal distances
+        neighbors1temp = Maps.neighbors[atom1['RESNAME']][atom1['NAME']][:]
+        neighbors2temp = Maps.neighbors[atom2['RESNAME']][atom2['NAME']][:]
 
-    neighbors1temp = Maps.neighbors[atom1['RESNAME']][atom1['NAME']][:]
-    neighbors2temp = Maps.neighbors[atom2['RESNAME']][atom2['NAME']][:]
+    except:
+        return 0, 0, 0
 
     neighbors1 = []
     neighbors2 = []
@@ -245,10 +248,10 @@ def Power(model,ch1,resind1,atind1,ch2,resind2,atind2,dist):
 
     return power,costeta1,costeta2
 
-def Search(model,cubics):
+def Search(model,cubics,MaxDist=3.5,MinPower=0.1):
 
-    MaxDist  = 3.5
-    MinPower = 0.1 
+    #MaxDist  = 3.5
+    #MinPower = 0.1 
 
     def AdjCubes(a,b,c):
 
@@ -288,7 +291,7 @@ def Search(model,cubics):
 
                             power,teta1,teta2 = Power(model,atom[0],atom[1],atom[2],atom2[0],atom2[1],atom2[2],dist)
 
-                            if power > MinPower:
+                            if power >= MinPower:
 
                                 if (atom[0],atom[1],atom[2]) not in potentials: potentials[(atom[0],atom[1],atom[2])] = []
 
@@ -336,13 +339,13 @@ def Search(model,cubics):
 
     return potentials'''
 
-def Atompairs(model):
+def Atompairs(model,side=2.5,MaxDist=3.5,MinPower=0.1,allin=False):
 
-    needed_atoms, minmax = Process(model)
-    cubics = Cubics(model,needed_atoms,minmax)
+    needed_atoms, minmax = Process(model,allin)
+    cubics = Cubics(model,needed_atoms,minmax,side)
     del needed_atoms,minmax
 
-    potentials,bypass = Search(model,cubics)
+    potentials,bypass = Search(model,cubics,MaxDist,MinPower)
     del cubics
     #raw_atompairs = Clean(model,potentials)
     raw_atompairs = potentials 
