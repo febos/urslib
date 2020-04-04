@@ -693,6 +693,19 @@ def LuA_minor(lines): # parsing from DSSR
             'BONDS1': bonds1,
             'BONDS2': bonds2}
 
+def LuAtomBaseCap(line):
+
+    cap = line.strip().split()
+    cap[2] = cap[2].split('@')
+
+
+    return {'ID'       : int(cap[0]),
+            'TYPE'     : cap[1],
+            'ATOM'     : cap[2][0],
+            'ATOMBASE' : '.'.join(cap[2][1].split('.')[2:]),
+            'BASE'     : '.'.join(cap[3].split('.')[2:]),
+            'RISE'     : float(cap[4]),}
+
 def LuBrackets(lines): # parsing from DSSR
 
     first  = cut_double_spaces(lines[0][:-1]).split(' ')

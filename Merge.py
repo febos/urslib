@@ -49,6 +49,7 @@ class Model():
         self.phosphates = dssr.phosphates
         self.lubrackets = dssr.brackets
         self.stacks     = dssr.stacks
+        self.abcaps     = dssr.abcaps
 
         self.add_nucl_id()
         self.merge_lustems_lones()

@@ -213,6 +213,7 @@ class Model():
         self.phosphates = []
         self.brackets   = []
         self.stacks     = []
+        self.abcaps     = []
 
 
         self.parse(outpath)
@@ -224,7 +225,7 @@ class Model():
                     'BULGE':   [], 'INTERNAL':[], 'JUNCTION': [], 'PSEUDO':  [],
                     'NON-LOOP':[], 'KISSING': [], 'A-MINOR':  [], 'U-TURN':  [],
                     'ZIPPER':  [], 'K-TURN':  [], 'PO4':      [], 'BRACKETS':[],
-                    '0':       [], 'STACKING':[]}
+                    '0':       [], 'STACKING':[], 'ATOM-BASE':[],}
 
         with open(outpath) as out:
 
@@ -262,7 +263,8 @@ class Model():
                         elif 'kink turn'     in line: current = 'K-TURN'
                         elif 'phosphate'     in line: current = 'PO4'
                         elif 'dot-bracket'   in line: current = 'BRACKETS'
-                        elif 'stacks' in line and 'coaxial' not in line: current = 'STACKING' 
+                        elif 'stacks' in line and 'coaxial' not in line: current = 'STACKING'
+                        elif 'atom-base cap' in line: current = 'ATOM-BASE'
                         else                        : current = '0'
 
                         Next = 0
@@ -611,6 +613,14 @@ class Model():
         """ LATER """
         del DSSRdict['PO4']
 
+        # ATOM-BASE CAPPING
+
+        abcaps = DSSRdict['ATOM-BASE']
+
+        for i in range(4,len(abcaps)-1):
+
+            self.abcaps.append(Tools.LuAtomBaseCap(abcaps[i]))
+        
         # BRACKETS (self.brackets)
 
         brackets = DSSRdict['BRACKETS']
