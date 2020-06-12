@@ -46,6 +46,11 @@ def ModifyStemsLoops(model): #add neighbors to stems and loops + add list 'LOOPS
             model.threads[i]['NEIGHBORS'] += model.loops[loop[0]][loop[1]-1]['NEIGHBORS']
         model.threads[i]['NEIGHBORS'] = list(set(model.threads[i]['NEIGHBORS']))
 
+    for i in range(len(model.wings['LU'])):
+
+        stem_i = model.wings['LU'][i]['STEM']
+        model.wings['LU'][i]['NEIGHBORS'] = model.stems[stem_i - 1]['NEIGHBORS']
+
 
 def NuclSS(self,dssr):
 
@@ -62,7 +67,7 @@ def NuclSS(self,dssr):
         return 'NA'
     
 
-def NuclRelation(self,dssr1,dssr2): # dssr1,dssr2 -> SM/LC/LR
+def NuclRelation(self,dssr1,dssr2): # dssr1,dssr2 -> SM/LC/NR/LR
 
     ch1,pl1,i1 = self.dssrnucls[dssr1]
     ch2,pl2,i2 = self.dssrnucls[dssr2]
@@ -72,32 +77,74 @@ def NuclRelation(self,dssr1,dssr2): # dssr1,dssr2 -> SM/LC/LR
     w2 = self.chains[ch2][pl2][i2]['WING']
     t2 = self.chains[ch2][pl2][i2]['THREAD']
 
-    if (not w1 and not t1) or (not w2 and not t2): return 'NA'
+    if (not w1 and not t1) or (not w2 and not t2):
+
+        return 'NA'
 
     if w1 and w2:
 
-        if self.wings['LU'][w1-1]['STEM'] == self.wings['LU'][w2-1]['STEM']: return 'SM'
-        else: return 'LR'
+
+        if self.wings['LU'][w1-1]['STEM'] == self.wings['LU'][w2-1]['STEM']:
+
+            return 'SM'
+        
+        else:
+
+            neibs1 = set([tuple(nei) for nei in self.wings['LU'][w1-1]['NEIGHBORS']])
+            neibs2 = set([tuple(nei) for nei in self.wings['LU'][w2-1]['NEIGHBORS']]) 
+
+            if neibs1 & neibs2:
+
+                return 'NR'
+
+            return 'LR'
 
     if w1 and t2:
 
-        if self.wings['LU'][w1-1]['STEM'] in self.threads[t2-1]['NEIGHBORS']: return 'LC'
-        else: return 'LR'
+        if self.wings['LU'][w1-1]['STEM'] in self.threads[t2-1]['NEIGHBORS']:
+
+            return 'LC'
+        
+        else:
+
+            return 'LR'
 
     if t1 and w2:
 
-        if self.wings['LU'][w2-1]['STEM'] in self.threads[t1-1]['NEIGHBORS']: return 'LC'
-        else: return 'LR'
+        if self.wings['LU'][w2-1]['STEM'] in self.threads[t1-1]['NEIGHBORS']:
+
+            return 'LC'
+
+        else:
+
+            return 'LR'
 
     if t1 and t2:
 
-        if t1 == t2: return 'SM'
-        
+        if t1 == t2:
+
+            return 'SM'
+
         loops1 = [x[0]+str(x[1]) for x in self.threads[t1-1]['LOOPS']]
         loops2 = [x[0]+str(x[1]) for x in self.threads[t2-1]['LOOPS']]
 
-        if bool(set(loops1) & set(loops2)): return 'SM'
-        else: return 'LR'
+        if set(loops1) & set(loops2):
+
+            return 'SM'
+
+        else:
+
+            neibs1 = set(self.threads[t1-1]['NEIGHBORS'])
+            neibs2 = set(self.threads[t2-1]['NEIGHBORS'])
+
+            print('tt',self.threads[t1-1]['LOOPS'],self.threads[t1-1]['NEIGHBORS'],
+              self.threads[t2-1]['LOOPS'],self.threads[t2-1]['NEIGHBORS'])
+
+            if neibs1 & neibs2:
+
+                return 'NR'
+
+            return 'LR'
 
 
 def add(model):
