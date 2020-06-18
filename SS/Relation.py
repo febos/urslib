@@ -137,14 +137,22 @@ def NuclRelation(self,dssr1,dssr2): # dssr1,dssr2 -> SM/LC/NR/LR
             neibs1 = set(self.threads[t1-1]['NEIGHBORS'])
             neibs2 = set(self.threads[t2-1]['NEIGHBORS'])
 
-            print('tt',self.threads[t1-1]['LOOPS'],self.threads[t1-1]['NEIGHBORS'],
-              self.threads[t2-1]['LOOPS'],self.threads[t2-1]['NEIGHBORS'])
-
             if neibs1 & neibs2:
 
                 return 'NR'
 
             return 'LR'
+
+def AnnotateLinks(model):
+
+    for link in model.links:
+
+        dssr1 = link['NUCL1'][0]
+        dssr2 = link['NUCL2'][0]
+
+        link['SS1'] = model.NuclSS(dssr1)
+        link['SS2'] = model.NuclSS(dssr2)
+        link['REL'] = model.NuclRelation(dssr1,dssr2)
 
 
 def add(model):
@@ -155,6 +163,6 @@ def add(model):
     model.NuclRelation = types.MethodType(NuclRelation,model)
     model.NuclSS = types.MethodType(NuclSS,model)
 
-    
+    AnnotateLinks(model)
 
     

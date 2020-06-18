@@ -246,6 +246,9 @@ def links(output):
     output.write(' class2'  + ' varchar(10),')
     output.write(' class3'  + ' varchar(10),')
     output.write(' dist'    + ' int,')
+    output.write(' ss1'     + ' varchar(10),')
+    output.write(' ss2'     + ' varchar(10),')
+    output.write(' rel'     + ' char(2),')
     output.write(' index(model)')
 
 def stems(output):

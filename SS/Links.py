@@ -18,7 +18,10 @@ def Link(bp, ID):
             'CLASS1'   :    bp['CLASS'][0],
             'CLASS2'   :    bp['CLASS'][1],
             'CLASS3'   :    bp['CLASS'][2],
-            'DIST'     :              None}
+            'DIST'     :              None,
+            'REL'      :              None,
+            'SS1'      :              None,
+            'SS2'      :              None}
             
 def classify(model):
 

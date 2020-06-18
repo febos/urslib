@@ -350,10 +350,13 @@ def links(model):
         class2  = l['CLASS2']
         class3  = l['CLASS3']
         dist    = l['DIST']
+        ss1     = checkNone(l['SS1'])
+        ss2     = checkNone(l['SS2'])
+        rel     = checkNone(l['REL'])
 
         result.append([ID,modelno,chain1,chain2,bp,bptype,lthread,
                        lwing,rthread,rwing,Type,depth,nucl1,nucl2,
-                       class1,class2,class3,dist])
+                       class1,class2,class3,dist,ss1,ss2,rel])
     return result
 
 def stems(model):
