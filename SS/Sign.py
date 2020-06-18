@@ -35,18 +35,27 @@ def Diagram(model,cc,ID,ecfID):
         model.chains[seq[i]]['SLBRACKETS'] = slbrackets[sum(lens[:i]):sum(lens[:i])+lens[i]]
 
     scheme = []
+    intra_scheme = []
     flag = {'L':1,'R':-1}
 
     for w in model.wings['LU']:
         another = model.wings['LU'][w['ANOTHER']-1]
         if       w['CHAIN'] in seq and       w['START'][1] == 'RES' and \
            another['CHAIN'] in seq and another['START'][1] == 'RES':
+
             scheme.append(flag[w['TYPE']]*w['STEM'])
+
+            if w['CHAIN'] == another['CHAIN']:
+                intra_scheme.append(flag[w['TYPE']]*w['STEM'])
 
     # Renumeration
     id_num = {}
     num_id = {}
     num    = 1
+
+    intra_id_num = {}
+    intra_num_id = {}
+    intra_num    = 1
     
     for i in range(len(scheme)):
 
@@ -59,19 +68,55 @@ def Diagram(model,cc,ID,ecfID):
             num += 1
         else: scheme[i] = -id_num[-scheme[i]]
 
+    for i in range(len(intra_scheme)):
+
+        if intra_scheme[i] > 0:
+            intra_id_num[intra_scheme[i]] = intra_num
+            intra_num_id[intra_num]       = intra_scheme[i]
+            intra_scheme[i] = intra_num
+            intra_num += 1
+        else: intra_scheme[i] = -intra_id_num[-intra_scheme[i]]
+
     stembrack = Brackets(scheme)
     dibrank   = int(len(set(stembrack))/2)
     ecfs     = []
     ecf_inds = Ecfs(scheme)
     depths   = Depth(ecf_inds)
     parents  = Parents(ecf_inds,ecfID)
+
+    intra_ecfID     = ecfID
+    intra_stembrack = Brackets(intra_scheme)
+    intra_dibrank   = int(len(set(intra_stembrack))/2)
+    intra_ecf_inds  = Ecfs(intra_scheme)
+    intra_depths    = Depth(intra_ecf_inds)
+    intra_parents   = Parents(intra_ecf_inds,intra_ecfID)
     
     for ecf in ecf_inds:
         if ecf not in parents: parent = '\\N'
         else: parent = parents[ecf]
         ecfs.append(Ecf(model,num_id,ecf,ecf_inds,scheme,depths[ecf],parent,ID,ecfID))
+        
         ecfID += 1
-    
+
+    for intra_ecf in intra_ecf_inds:
+        if intra_ecf not in intra_parents: intra_parent = '\\N'
+        else: intra_parent = intra_parents[intra_ecf]
+        temp_intra_ecf = Ecf(model,intra_num_id,intra_ecf,
+                             intra_ecf_inds,intra_scheme,intra_depths[intra_ecf],
+                             intra_parent,ID,intra_ecfID,local=True)
+
+        intra_ecfID += 1
+
+        if temp_intra_ecf['SIGNATURE'] != 'aA': #adding intrachain sub-pseudoknots of interchain pseudoknots
+
+            for temp_ecf in ecfs:
+
+                if temp_intra_ecf['STEMS'] & temp_ecf['STEMS'] and temp_intra_ecf['STEMS'] != temp_ecf['STEMS']:
+
+                    temp_intra_ecf['ID'] = ecfID
+                    ecfs.append(temp_intra_ecf)
+                    ecfID += 1
+        
     depth   = max(list(depths.values())+[0,])
     lptrank = max([i['LPTRANK'] for i in ecfs]+[1,])
 
@@ -91,10 +136,12 @@ def Diagram(model,cc,ID,ecfID):
             'DEPTH'     :         depth,
             'SEQBRACK'  :      seqbrack}
 
-def Ecf(model,num_id,ecf,ecf_inds,scheme,depth,parent,ID,ecfID):
+def Ecf(model,num_id,ecf,ecf_inds,scheme,depth,parent,ID,ecfID,local=False):
 
     fullscheme = scheme[ecf[0]:ecf[1]+1]
     scheme     = offChildren(scheme,ecf_inds,ecf)
+
+    ecfstems = set()
 
     # Renumeration
     num_num2 = {}
@@ -110,18 +157,24 @@ def Ecf(model,num_id,ecf,ecf_inds,scheme,depth,parent,ID,ecfID):
             num_num2[scheme[i]] = num2
             num2_num[num2]      = scheme[i]
             stem_ind = num_id[scheme[i]]-1
-            model.stems[stem_ind]['ECF']      = ecfID    # stems.ecf
-            model.stems[stem_ind]['NUMINECF'] = num2     # stems.numinecf
-            model.wings['LU'][model.stems[stem_ind]['LEFT']-1]['ECF']  = ecfID # Lwing.ecf
-            model.wings['LU'][model.stems[stem_ind]['RIGHT']-1]['ECF'] = ecfID # Rwing.ecf
+
+            if not local:
+                model.stems[stem_ind]['ECF']      = ecfID    # stems.ecf
+                model.stems[stem_ind]['NUMINECF'] = num2     # stems.numinecf
+                model.wings['LU'][model.stems[stem_ind]['LEFT']-1]['ECF']  = ecfID # Lwing.ecf
+                model.wings['LU'][model.stems[stem_ind]['RIGHT']-1]['ECF'] = ecfID # Rwing.ecf
+                model.wings['LU'][model.stems[stem_ind]['LEFT']-1]['NUMINECF']  = num2  #Lwing.numinecf
+                model.wings['LU'][model.stems[stem_ind]['RIGHT']-1]['NUMINECF'] = -num2 #Rwing.numinecf
+
             chainseq.append(model.wings['LU'][model.stems[stem_ind]['LEFT']-1]['CHAIN']) # for chainseq
             chainseq.append(model.wings['LU'][model.stems[stem_ind]['RIGHT']-1]['CHAIN'])# for chainseq
-            model.wings['LU'][model.stems[stem_ind]['LEFT']-1]['NUMINECF']  = num2  #Lwing.numinecf
-            model.wings['LU'][model.stems[stem_ind]['RIGHT']-1]['NUMINECF'] = -num2 #Rwing.numinecf
+            
             scheme[i] = num2
             wingseq.append(str(num2)+':'+str(model.wings['LU'][model.stems[stem_ind]['LEFT']-1]['LEN'])+\
                            ':'+model.wings['LU'][model.stems[stem_ind]['LEFT']-1]['SEQ'])
             num2 += 1
+
+            ecfstems.add(model.stems[stem_ind]['ID'])
         else:
             stem_ind = num_id[-scheme[i]]-1
             scheme[i] = -num_num2[-scheme[i]]
@@ -153,7 +206,9 @@ def Ecf(model,num_id,ecf,ecf_inds,scheme,depth,parent,ID,ecfID):
             'PARENT'    :     parent,
             'WINGSEQ'   :    wingseq,
             'JMOL'      :       jmol,
-            'CHAINSEQ'  :   chainseq}
+            'CHAINSEQ'  :   chainseq,
+            'STEMS'     :   ecfstems,
+            'INTRA'     : int(local)}
 
 def Parents(ecfs,shift): 
 
@@ -438,7 +493,7 @@ def Main(model):
 
         diagrams.append(Diagram(model,cc,ID,ecfID))
         ecfID += len(diagrams[-1]['ECFS'])
-        ID += 1
+        ID += 1      
 
     return diagrams
     

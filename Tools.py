@@ -591,25 +591,25 @@ def Residue(atom):
     lu    = atom['CHAIN'] + '.' + atom['RESNAME'] + '.' + str(num) + '.' + icode 
     Float = pdbnum_to_float(atom['RESNUM'])
         
-    return {'ID'        :               0,   # ID of residue
-            'TYPE'      :              '',   # RNA, DNA, Protein, Unknown, Metal or Water
-            'PDBNUM'    :  atom['RESNUM'],   # Number + icode from PDB file
-            'NAME'      : atom['RESNAME'],   # Name of residue
-            'CHAIN'     :   atom['CHAIN'],   # letter identifier of chain
-            'ATOMS'     :              [],   # atoms list
-            'FLOAT'     :           Float,   # float equivalent of 'PDBNUM'
-            'DSSR'      :              lu,   # chain.nucl.pdbnum.icode (like DSSR)
-            'MISS'      :           False,
-            'WING'      :            None,
-            'OLDWING'   :            None,
-            'FSTEMS'    :               0,
-            'THREAD'    :            None,
-            'ZIP'       :           '\\N',
-            'LUMULT'    :           '\\N',
-            'MULT'      :           '\\N',
-            'BPS'       :               0,
-            'BRACKETS'  :             '.',   # stems only
-            'SLBRACKETS':             '.'}   # including wc/wb links
+    return {'ID'            :               0,   # ID of residue
+            'TYPE'          :              '',   # RNA, DNA, Protein, Unknown, Metal or Water
+            'PDBNUM'        :  atom['RESNUM'],   # Number + icode from PDB file
+            'NAME'          : atom['RESNAME'],   # Name of residue
+            'CHAIN'         :   atom['CHAIN'],   # letter identifier of chain
+            'ATOMS'         :              [],   # atoms list
+            'FLOAT'         :           Float,   # float equivalent of 'PDBNUM'
+            'DSSR'          :              lu,   # chain.nucl.pdbnum.icode (like DSSR)
+            'MISS'          :           False,
+            'WING'          :            None,
+            'OLDWING'       :            None,
+            'FSTEMS'        :               0,
+            'THREAD'        :            None,
+            'ZIP'           :           '\\N',
+            'LUMULT'        :           '\\N',
+            'MULT'          :           '\\N',
+            'BPS'           :               0,
+            'BRACKETS'      :             '.',   # stems only
+            'SLBRACKETS'    :             '.'}   # including wc/wb links
 
 def ResidueCIF(line,inds): # Residue from mmcif._pdbx_poly_seq_scheme
 

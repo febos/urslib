@@ -139,10 +139,11 @@ def ecfs(model):
             wingseq    = e['WINGSEQ']
             jmol       = e['JMOL']
             chainseq   = e['CHAINSEQ']
+            subps      = e['INTRA']
 
             result.append([ID,modelno,diagram,fullscheme,scheme,signat,
                            brackets,dibrank,lptrank,depth,parent,
-                           wingseq,jmol,chainseq])
+                           wingseq,jmol,chainseq,subps])
     return result
 
 def atompairs(model):

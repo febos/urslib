@@ -800,6 +800,7 @@ def ecfs(output):
     output.write(' wingseq'    + ' text,')
     output.write(' jmol'       + ' text,')
     output.write(' chainseq'   + ' text,')
+    output.write(' issub'      + ' int,')
     output.write(' index(model)')
 
 def atompairs(output):
