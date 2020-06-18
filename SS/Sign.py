@@ -116,6 +116,8 @@ def Diagram(model,cc,ID,ecfID):
                     temp_intra_ecf['ID'] = ecfID
                     ecfs.append(temp_intra_ecf)
                     ecfID += 1
+
+                    break
         
     depth   = max(list(depths.values())+[0,])
     lptrank = max([i['LPTRANK'] for i in ecfs]+[1,])
