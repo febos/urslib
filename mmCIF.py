@@ -56,7 +56,7 @@ class Model():
                     line2 += ch
                     if not count: count = ch
                     elif count==ch: count = ''
-                elif ch==' ':
+                elif ch in (' ', '\t'):
                     if count: line2 += '&&&&&'
                     else    : line2 += ' '
                 else: line2 += ch
