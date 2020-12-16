@@ -923,13 +923,18 @@ def LuK_turn(lines): # parsing from DSSR
         pair = second[3][:-1].split(',')
         pair = '.'.join(pair[0].split('.')[2:]) + '.' + '.'.join(pair[1].split('.')[2:])
 
+    strand1 = lines[2].strip().split()[3]
+    strand2 = lines[3].strip().split()[3]
+
     return {'ID'   :   num,
             'PAIR' :  pair,
             'HELIX': helix,
             'STEM1': stem1,
             'STEM2': stem2,
             'ILOOP': iloop,
-            'TYPE' :  Type}
+            'TYPE' :  Type,
+            'STRAND1': strand1,
+            'STRAND2': strand2}
 
 def LuKissing(line): # parsing from DSSR
 
