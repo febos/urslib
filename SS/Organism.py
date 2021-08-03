@@ -36,6 +36,7 @@ def Organism(organism):
                'norovirus':'norovirus',
                '\\N':'unspecified',
                '':'unspecified',
+               'phage':'phage',
                'proteobacteria':'proteobacteria',
                'pyrococcus':'pyrococcus',
                'rattus':'rattus',
